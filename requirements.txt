@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+celery
+redis
+sqlalchemy
+python-multipart
+PyMySQL
+python-decouple
