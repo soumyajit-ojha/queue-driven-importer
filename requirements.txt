@@ -3,6 +3,10 @@ uvicorn
 celery
 redis
 sqlalchemy
+aiomysql
 python-multipart
 PyMySQL
 python-decouple
+faker
+flower
+# eventlet
