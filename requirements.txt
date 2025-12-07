@@ -9,4 +9,5 @@ PyMySQL
 python-decouple
 faker
 flower
+alembic
 # eventlet

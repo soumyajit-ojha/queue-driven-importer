@@ -1,4 +1,3 @@
-# app/main.py
 import os
 import uuid
 from fastapi import FastAPI, UploadFile, File, Depends, HTTPException, Request
