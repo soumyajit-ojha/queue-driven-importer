@@ -11,7 +11,7 @@ from .database import Base, engine, get_db
 from .models import UploadCSV, JobStatus, User
 from .schemas import UploadResponse, UploadCSVOut
 from .tasks import process_csv_task
-from .auth import get_current_user
+from .auth import get_current_active_user
 
 UPLOAD_DIR = "./uploads"
 
@@ -46,7 +46,7 @@ async def upload_csv(
     request: Request,
     file: UploadFile = File(...),
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    # current_user: User = Depends(get_current_active_user),
 ):
     if not file.filename.lower().endswith(".csv"):
         raise HTTPException(400, "Only CSV files are allowed")
@@ -67,7 +67,7 @@ async def upload_csv(
         original_filename=file.filename,
         file_path=file_path,
         status=JobStatus.PENDING,
-        user_id=current_user.id,
+        # user_id=current_user.id,
     )
     db.add(job)
     await db.commit()
@@ -92,12 +92,13 @@ async def upload_csv(
 async def get_job(
     job_id: int,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    # current_user: User = Depends(get_current_active_user),
 ):
     query = (
         select(UploadCSV)
         .options(selectinload(UploadCSV.csv_data))
         .where(UploadCSV.id == job_id)
+        # .where(UploadCSV.user_id == current_user.id)
     )
     # result = await db.execute(select(UploadCSV).where(UploadCSV.id == job_id))
     result = await db.execute(query)
@@ -117,5 +118,5 @@ def root():
 
 
 @app.get("/secret")
-async def secret(current_user: User = Depends(get_current_user)):
+async def secret(current_user: User = Depends(get_current_active_user)):
     return {"message": f"Welcome {current_user.email}!"}

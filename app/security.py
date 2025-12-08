@@ -5,7 +5,6 @@ This module contains security settings
 from datetime import datetime, timezone, timedelta
 import jwt
 from decouple import config
-import hashlib
 from passlib.context import CryptContext
 from fastapi import HTTPException, status
 from typing import Optional
@@ -31,7 +30,7 @@ def get_hashed_password(password: str) -> str:
     """
     Hashed password by pwd_context.
     """
-    if len(password.encode('utf-8')) > 72:
+    if len(password.encode("utf-8")) > 72:
         raise HTTPException(400, "Password too long! Must be <= 72 characters")
 
     try:
@@ -59,23 +58,22 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
 
 
 def verify_token(token: str) -> TokenData:
-    """
-    Verify the token
-    """
-
     try:
-        payload = jwt.decode(token, setattr, algorithms=ENCODE_ALGORITHM)
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ENCODE_ALGORITHM])
+
         email = payload.get("sub")
         if not email:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Unverified token",
-                headers={"WWW-athenticate": "Bearer"},
+                headers={"WWW-Authenticate": "Bearer"},
             )
         return TokenData(email=email)
-    except jwt.PyJWTError:
+
+    except jwt.PyJWTError as e:
+        # print(f"JWT Error: {e}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid credential.",
-            headers={"WWW-authenticate": "Bearer"},
+            headers={"WWW-Authenticate": "Bearer"},
         )
