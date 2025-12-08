@@ -6,8 +6,16 @@ sqlalchemy
 aiomysql
 python-multipart
 PyMySQL
+# fetch .env values
 python-decouple
+# to create fake data
 faker
+# moniter scheduled tasks
 flower
+# handle auto-migrations
 alembic
+# password hashing
+passlib[bcrypt]
+# 
+PyJWT
 # eventlet
