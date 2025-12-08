@@ -8,10 +8,24 @@ from sqlalchemy import (
     DateTime,
     ForeignKey,
     Text,
+    Boolean,
+    func,
 )
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from .database import Base
+
+
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String(50), unique=True, index=True, nullable=False)
+    email = Column(String(100), unique=True, index=True, nullable=False)
+    hashed_password = Column(String(255), nullable=False)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    upload_jobs = relationship("UploadCSV", back_populates="user")
 
 
 class JobStatus(str, enum.Enum):
@@ -35,7 +49,8 @@ class UploadCSV(Base):
         default=lambda: datetime.now(timezone.utc),
         onupdate=lambda: datetime.now(timezone.utc),
     )
-
+    user_id = Column(Integer, ForeignKey("users.id"))
+    user = relationship("User", back_populates="upload_jobs")
     csv_data = relationship("CSVData", back_populates="upload_csv")
 
 

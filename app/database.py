@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
-from sqlalchemy import create_engine # <--- Import Sync Engine
+from sqlalchemy import create_engine
 from decouple import config
 
 DB_HOST = config("DB_HOST")

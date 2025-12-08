@@ -53,12 +53,16 @@ Ensure your project directory looks like this:
 ```text
 .
 ├── app/
+│   ├── __init__.py
+│   ├── auth.py
 │   ├── main.py              # FastAPI app, routes
 │   ├── config.py            # Settings (DB URL, Redis URL, etc.)
 │   ├── database.py          # SQLAlchemy engine/session
 │   ├── models.py            # DB models (UploadJob, ExtractedRow)
+│   ├── routers.py           # Define routers
 │   ├── schemas.py           # Pydantic schemas
-│   ├── celery_app.py        # Celery instance setup
+│   ├── security.py          # Security helping function
+│   ├── celery.py            # Celery instance setup
 │   ├── tasks.py             # Celery tasks (CSV processing)
 │   └── utils.py             # CSV helpers, common functions
 ├── worker.py                # Celery worker entry
