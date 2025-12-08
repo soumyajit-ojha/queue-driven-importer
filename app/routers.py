@@ -10,7 +10,7 @@ from .auth import get_current_active_user
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
-
+# data-validation
 @router.post("/register", response_model=Token)
 async def register_user(data: UserCreate, db: AsyncSession = Depends(get_db)):
     # check existing user
