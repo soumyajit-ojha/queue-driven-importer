@@ -46,7 +46,7 @@ async def upload_csv(
     request: Request,
     file: UploadFile = File(...),
     db: AsyncSession = Depends(get_db),
-    # current_user: User = Depends(get_current_active_user),
+    current_user: User = Depends(get_current_active_user),
 ):
     if not file.filename.lower().endswith(".csv"):
         raise HTTPException(400, "Only CSV files are allowed")
@@ -67,7 +67,7 @@ async def upload_csv(
         original_filename=file.filename,
         file_path=file_path,
         status=JobStatus.PENDING,
-        # user_id=current_user.id,
+        user_id=current_user.id,
     )
     db.add(job)
     await db.commit()
@@ -92,7 +92,7 @@ async def upload_csv(
 async def get_job(
     job_id: int,
     db: AsyncSession = Depends(get_db),
-    # current_user: User = Depends(get_current_active_user),
+    current_user: User = Depends(get_current_active_user),
 ):
     query = (
         select(UploadCSV)
