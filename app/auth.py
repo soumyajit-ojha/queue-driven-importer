@@ -22,9 +22,9 @@ async def get_current_user(
     """
     token_data = verify_token(token)
     _user = await db.scalars(select(User).where(User.email == token_data.email))
-    print("DATA", str(_user))
+    # print("DATA", str(_user))
     user = _user.first()
-    print("FINAL DATA", str(user))
+    # print("FINAL DATA", str(user))
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
