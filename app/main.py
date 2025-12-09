@@ -1,5 +1,6 @@
 import os
 import uuid
+from pathlib import Path
 from fastapi import FastAPI, UploadFile, File, Depends, HTTPException, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -13,8 +14,9 @@ from .schemas import UploadResponse, UploadCSVOut
 from .tasks import process_csv_task
 from .auth import get_current_active_user
 
-UPLOAD_DIR = "./uploads"
-
+BASE_DIR = Path(__file__).resolve().parent
+UPLOAD_DIR = BASE_DIR / "uploads"
+ 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -24,7 +26,7 @@ async def lifespan(app: FastAPI):
         os.makedirs(UPLOAD_DIR, exist_ok=True)
         print("\n✅ FastAPI Started | Upload Dir OK.\n")
     except Exception as e:
-        print("error: Upload Dir\n".str(e))
+        print("error: Upload Dir\n",str(e))
         raise e
     yield
     await engine.dispose()
