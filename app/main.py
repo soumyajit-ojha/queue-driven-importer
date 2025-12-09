@@ -24,14 +24,14 @@ async def lifespan(app: FastAPI):
         async with engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
         os.makedirs(UPLOAD_DIR, exist_ok=True)
-        print("\n✅ FastAPI Started | Upload Dir OK.\n")
+        # print("\n✅ FastAPI Started | Upload Dir OK.\n")
     except Exception as e:
-        print("error: Upload Dir\n",str(e))
-        raise e
+        # print("error: Upload Dir\n",str(e))
+        raise str(e)
     yield
     await engine.dispose()
     # delete_file_safe(UPLOAD_DIR)
-    print("❌ Database connection closed cleanly")
+    # print("❌ Database connection closed cleanly")
 
 
 app = FastAPI(title="queue-driven-importer", lifespan=lifespan)
@@ -104,7 +104,7 @@ async def get_job(
     )
     # result = await db.execute(select(UploadCSV).where(UploadCSV.id == job_id))
     result = await db.execute(query)
-    print("GET JOB", result)
+    # print("GET JOB", result)
     job = result.scalars().unique().first()
 
     if not job:

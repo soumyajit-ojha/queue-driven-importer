@@ -33,7 +33,7 @@ async def register_user(data: UserCreate, db: AsyncSession = Depends(get_db)):
         token = create_access_token({"sub": new_user.email})
         return Token(access_token=token, token_type="Bearer")
     except Exception as e:
-        print("Error", str(e))
+        # print("Error", str(e))
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Error while user register.",

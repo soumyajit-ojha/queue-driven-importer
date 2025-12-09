@@ -65,9 +65,13 @@ Ensure your project directory looks like this:
 │   ├── celery.py            # Celery instance setup
 │   ├── tasks.py             # Celery tasks (CSV processing)
 │   └── utils.py             # CSV helpers, common functions
-├── worker.py                # Celery worker entry
-├── requirements.txt
+├── .gitignore
+├── alembic.ini
 ├── create_db.py
+├── Dockerfile
+├── fakedata.py
+├── README.md
+├── requirements.txt
 └── docker-compose.yml       # Redis + app (optional but useful)
 ```
 
@@ -138,7 +142,7 @@ docker-compose exec api python app/create_tables.py
 If you are running without Docker:
 
 ### 1. Prerequisites
-*   Python 3.10+
+*   Python 3.12.10
 *   MySQL Server running
 *   Redis Server running
 
