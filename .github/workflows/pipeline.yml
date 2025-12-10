@@ -1,3 +1,4 @@
+# Label name will show on github-action UI
 name: CI/CD Pipeline
 
 on:
