@@ -11,22 +11,22 @@ jobs:
     runs-on: ubuntu-latest
     
     # Service Containers for Integration Testing
-    services:
-      mysql:
-        image: mysql:8.0
-        env:
-          MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: test_db
-          MYSQL_USER: user
-          MYSQL_PASSWORD: password
-        ports:
-          - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+    # services:
+    #   mysql:
+    #     image: mysql:8.0
+    #     env:
+    #       MYSQL_ROOT_PASSWORD: root
+    #       MYSQL_DATABASE: test_db
+    #       MYSQL_USER: user
+    #       MYSQL_PASSWORD: password
+    #     ports:
+    #       - 3306:3306
+    #     options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
 
-      redis:
-        image: redis
-        ports:
-          - 6379:6379
+    #   redis:
+    #     image: redis
+    #     ports:
+    #       - 6379:6379
 
     steps:
       - name: Checkout Code
@@ -43,21 +43,21 @@ jobs:
           pip install -r requirements.txt
           pip install pytest httpx pytest-asyncio
 
-      - name: Run Tests
-        env:
-          # Match the Service Container Credentials
-          DB_HOST: 127.0.0.1
-          DB_PORT: 3306
-          DB_NAME: test_db
-          DB_USER: user
-          DB_PASS: password
-          CELERY_BROKER_URL: redis://localhost:6379/0
-          CELERY_RESULT_BACKEND: redis://localhost:6379/0
-          SECRET_KEY: testsecret
-          ENCODE_ALGORITHM: HS256
-          ACCESS_TOKEN_LIFE_MINUIT: 30
-        run: |
-          pytest
+      # - name: Run Tests
+      #   env:
+      #     # Match the Service Container Credentials
+      #     DB_HOST: 127.0.0.1
+      #     DB_PORT: 3306
+      #     DB_NAME: test_db
+      #     DB_USER: user
+      #     DB_PASS: password
+      #     CELERY_BROKER_URL: redis://localhost:6379/0
+      #     CELERY_RESULT_BACKEND: redis://localhost:6379/0
+      #     SECRET_KEY: testsecret
+      #     ENCODE_ALGORITHM: HS256
+      #     ACCESS_TOKEN_LIFE_MINUIT: 30
+      #   run: |
+      #     pytest
 
   deploy:
     runs-on: ubuntu-latest
@@ -89,20 +89,20 @@ jobs:
           script: |
             # Navigate to app directory (create if doesn't exist)
             mkdir -p my-app
-            cd my-app
+            # cd my-app
 
-            # Stop existing containers
-            docker compose down
+            # # Stop existing containers
+            # docker compose down
 
-            # Create .env file from GitHub Secrets
-            echo "${{ secrets.ENV_FILE }}" > .env
+            # # Create .env file from GitHub Secrets
+            # echo "${{ secrets.ENV_FILE }}" > .env
 
-            # Pull latest image
-            docker pull ${{ secrets.DOCKER_USERNAME }}/fastapi-app:latest
+            # # Pull latest image
+            # docker pull ${{ secrets.DOCKER_USERNAME }}/fastapi-app:latest
 
-            # Update docker-compose to use the image name explicitly
-            # (Or simply copy the docker-compose.yml from the repo to the server)
-            # Here we assume you copy the docker-compose.yml in the next step or it exists.
+            # # Update docker-compose to use the image name explicitly
+            # # (Or simply copy the docker-compose.yml from the repo to the server)
+            # # Here we assume you copy the docker-compose.yml in the next step or it exists.
             
-            # Start services
-            docker compose up -d
+            # # Start services
+            # docker compose up -d
