@@ -1,20 +1,22 @@
-# app/main.py
 import os
 import uuid
+from pathlib import Path
 from fastapi import FastAPI, UploadFile, File, Depends, HTTPException, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 from contextlib import asynccontextmanager
 
-from decouple import config
+from app.routers import router
 from .database import Base, engine, get_db
-from .models import UploadCSV, JobStatus
+from .models import UploadCSV, JobStatus, User
 from .schemas import UploadResponse, UploadCSVOut
 from .tasks import process_csv_task
-from .utils import delete_file_safe
+from .auth import get_current_active_user
 
-UPLOAD_DIR = "./uploads"
+BASE_DIR = Path(__file__).resolve().parent
+UPLOAD_DIR = BASE_DIR / "uploads"
+ 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -22,20 +24,20 @@ async def lifespan(app: FastAPI):
         async with engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
         os.makedirs(UPLOAD_DIR, exist_ok=True)
-        print("\n✅ FastAPI Started | Upload Dir OK.\n")
+        # print("\n✅ FastAPI Started | Upload Dir OK.\n")
     except Exception as e:
-        print("error: Upload Dir\n".str(e))
-        raise e
+        # print("error: Upload Dir\n",str(e))
+        raise str(e)
     yield
     await engine.dispose()
     # delete_file_safe(UPLOAD_DIR)
-    print("❌ Database connection closed cleanly")
+    # print("❌ Database connection closed cleanly")
 
 
 app = FastAPI(title="queue-driven-importer", lifespan=lifespan)
+app.include_router(router)
 
 
-# 1) UPLOAD CSV → Create Job + Push Celery Task ✅✅✅ working
 @app.post(
     "/upload",
     response_model=UploadResponse,
@@ -46,6 +48,7 @@ async def upload_csv(
     request: Request,
     file: UploadFile = File(...),
     db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
 ):
     if not file.filename.lower().endswith(".csv"):
         raise HTTPException(400, "Only CSV files are allowed")
@@ -63,7 +66,10 @@ async def upload_csv(
 
     # Create DB job entry
     job = UploadCSV(
-        original_filename=file.filename, file_path=file_path, status=JobStatus.PENDING
+        original_filename=file.filename,
+        file_path=file_path,
+        status=JobStatus.PENDING,
+        user_id=current_user.id,
     )
     db.add(job)
     await db.commit()
@@ -85,15 +91,20 @@ async def upload_csv(
     response_model=UploadCSVOut,
     summary="Get job status and processed CSV data",
 )
-async def get_job(job_id: int, db: AsyncSession = Depends(get_db)):
+async def get_job(
+    job_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
     query = (
         select(UploadCSV)
         .options(selectinload(UploadCSV.csv_data))
         .where(UploadCSV.id == job_id)
+        # .where(UploadCSV.user_id == current_user.id)
     )
     # result = await db.execute(select(UploadCSV).where(UploadCSV.id == job_id))
     result = await db.execute(query)
-    print("GET JOB", result)
+    # print("GET JOB", result)
     job = result.scalars().unique().first()
 
     if not job:
@@ -106,3 +117,8 @@ async def get_job(job_id: int, db: AsyncSession = Depends(get_db)):
 @app.get("/")
 def root():
     return {"message": "CSV async processor is running 🚀"}
+
+
+@app.get("/secret")
+async def secret(current_user: User = Depends(get_current_active_user)):
+    return {"message": f"Welcome {current_user.email}!"}

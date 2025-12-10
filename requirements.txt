@@ -1,12 +1,22 @@
-fastapi
-uvicorn
-celery
-redis
-sqlalchemy
-aiomysql
-python-multipart
-PyMySQL
-python-decouple
-faker
-flower
+fastapi==0.123.5
+uvicorn==0.38.0
+celery==5.6.0
+redis==7.1.0
+SQLAlchemy==2.0.44
+aiomysql==0.3.2
+python-multipart==0.0.20
+PyMySQL==1.1.2
+# fetch .env values
+python-decouple==3.8
+# to create fake data
+Faker==38.2.0
+# moniter scheduled tasks
+flower==2.0.1
+# handle auto-migrations
+alembic==1.17.2 
+# password hashing
+passlib==1.7.4
+bcrypt==3.2.2
+# 
+PyJWT==2.10.1
 # eventlet
