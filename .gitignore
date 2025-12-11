@@ -1,5 +1,6 @@
 .venv/
 .env
+app.db
 __pycache__/
 trash/
 fake_data/
