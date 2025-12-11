@@ -9,10 +9,10 @@ folder_name = "fake_data"
 os.makedirs(folder_name, exist_ok=True)
 
 # Number of CSV files to create
-num_files = 50
+num_files = 10
 
 # Number of rows per file
-rows_per_file = 50
+rows_per_file = 20
 
 for i in range(1, num_files + 1):
     filename = os.path.join(folder_name, f"fake_data_{i}.csv")
