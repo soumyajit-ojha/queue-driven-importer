@@ -12,7 +12,7 @@ from .database import Base, engine, get_db
 from .models import UploadCSV, JobStatus, User
 from .schemas import UploadResponse, UploadCSVOut
 from .tasks import process_csv_task
-from .auth import get_current_active_user
+from .auth import get_current_active_user, get_current_user
 
 BASE_DIR = Path(__file__).resolve().parent
 UPLOAD_DIR = BASE_DIR / "uploads"
@@ -48,7 +48,7 @@ async def upload_csv(
     request: Request,
     file: UploadFile = File(...),
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_active_user),
+    current_user: User = Depends(get_current_user),
 ):
     if not file.filename.lower().endswith(".csv"):
         raise HTTPException(400, "Only CSV files are allowed")
@@ -76,7 +76,7 @@ async def upload_csv(
     await db.refresh(job)
 
     # Call Celery task asynchronously
-    process_csv_task.delay(job_id=job.id, file_path=file_path)
+    process_csv_task(job_id=job.id, file_path=file_path)
 
     return UploadResponse(
         job_id=job.id,

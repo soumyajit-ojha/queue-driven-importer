@@ -4,25 +4,27 @@ This module contains authentication
 
 from typing import Annotated
 from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import OAuth2PasswordBearer, HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from app.models import User
 from app.database import get_db
 from app.security import verify_token
 
+auth_scheme = HTTPBearer()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
 async def get_current_user(
-    token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_db)
+    token: str = Depends(auth_scheme), db: AsyncSession = Depends(get_db)
 ):
     """
     Fetch current user
     """
-    token_data = verify_token(token)
+    token_data = verify_token(token.credentials)
+    # print("TOKEN_DATA", token_data)
     _user = await db.scalars(select(User).where(User.email == token_data.email))
-    # print("DATA", str(_user))
+    # print("DATA", str(_user)
     user = _user.first()
     # print("FINAL DATA", str(user))
     if not user:

@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import Optional, List
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from .models import JobStatus
 
 
@@ -64,6 +64,19 @@ class UserBase(BaseModel):
     email: str
     username: str
 
+    @field_validator("username")
+    @classmethod
+    def validate_username(cls, value):
+        if len(value) < 3:
+            raise ValueError("Username must be at least 3 characters long.")
+        if len(value) > 20:
+            raise ValueError("Username must be at most 20 characters long.")
+        if " " in value:
+            raise ValueError("Username cannot contain spaces.")
+        if not value.isalnum():
+            raise ValueError("Username must contain only letters and numbers.")
+        return value
+
 
 class UserCreate(UserBase):
     """
@@ -71,6 +84,19 @@ class UserCreate(UserBase):
     """
 
     password: str
+
+    @field_validator("password")
+    @classmethod
+    def validate_password(cls, value):
+        if len(value) < 8:
+            raise ValueError("Password must be at least 8 characters.")
+        if not any(c.isupper() for c in value):
+            raise ValueError("Password must contain at least one uppercase letter.")
+        if not any(c.islower() for c in value):
+            raise ValueError("Password must contain at least one lowercase letter.")
+        if not any(c.isdigit() for c in value):
+            raise ValueError("Password must contain at least one digit.")
+        return value
 
 
 class UserResponse(UserBase):
@@ -107,5 +133,6 @@ class TokenData(BaseModel):
     """
     TokenData configuration of field
     """
+
     email: str | None = None
     username: str | None = None

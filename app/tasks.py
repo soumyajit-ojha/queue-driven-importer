@@ -1,7 +1,6 @@
-import os
 from celery.utils.log import get_task_logger
 from app.celery import celery
-from .database import SyncSessionLocal  # <--- Use the SYNC session
+from .database import SyncSessionLocal
 from .models import UploadCSV, CSVData, JobStatus
 from .utils import read_csv_as_dicts, delete_file_safe
 
@@ -20,11 +19,11 @@ def process_csv_task(self, job_id: int, file_path: str):
     Synchronous Celery Task.
     No asyncio.run(), no await.
     """
-    logger.info(f"log--[TASK STARTED] job_id={job_id}")
+    logger.info(f"[TASK STARTED] job_id={job_id}")
 
     # 1. CALCULATE DELAY LOGIC
     delay_seconds = calculate_delay(file_path)
-    logger.info(f"log--[DELAY] Sleeping for {delay_seconds} seconds...")
+    logger.info(f"[DELAY] Sleeping for {delay_seconds} seconds...")
 
     # 2. PROCESS DATABASE (Synchronously)
     # We use a context manager to ensure the session closes
@@ -64,7 +63,7 @@ def process_csv_task(self, job_id: int, file_path: str):
         session.commit()
 
         logger.info(
-            f"log--[TASK SUCCESS] job_id={job_id} processed {len(bulk_data)} rows."
+            f"[TASK SUCCESS] job_id={job_id} processed {len(bulk_data)} rows."
         )
         delete_file_safe(file_path)
 
@@ -76,7 +75,7 @@ def process_csv_task(self, job_id: int, file_path: str):
             job.error_message = str(e)
             session.commit()
 
-        logger.error(f"log--[TASK FAILED] {e}")
+        logger.error(f"[TASK FAILED] {e}")
         raise e
     finally:
         session.close()  # Always close sync sessions manually or via context manager
