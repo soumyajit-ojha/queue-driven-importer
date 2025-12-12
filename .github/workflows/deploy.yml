@@ -7,7 +7,6 @@ on:
 
 jobs:
   deploy:
-    name: Deploy to EC2 Server
     runs-on: ubuntu-latest
 
     steps:
@@ -25,25 +24,21 @@ jobs:
 
             cd /home/ubuntu/queue-driven-importer
 
-            # Pull latest code
             git fetch --all
             git reset --hard origin/main
 
-            # Optional: recreate .env from GitHub Secret
-            # echo "${{ secrets.ENV_FILE }}" > .env
-
-            # Stop old container
+            # STOP & REMOVE OLD CONTAINER
             docker stop fastapi_app || true
             docker rm fastapi_app || true
 
-            # Build fresh image
+            # BUILD IMAGE
             docker build -t fastapi_app:latest .
 
-            # Run container again
+            # RUN CONTAINER
             docker run -d --name fastapi_app \
               --env-file .env \
               -p 8000:8000 \
               fastapi_app:latest
 
-            # clean up old images
+            # CLEANUP
             docker image prune -f
