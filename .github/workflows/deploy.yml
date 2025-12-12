@@ -1,0 +1,49 @@
+name: Deploy FastAPI to EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy to EC2 Server
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.HOST_IP }}
+          username: ${{ secrets.HOST_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            set -e
+
+            cd /home/ubuntu/queue-driven-importer
+
+            # Pull latest code
+            git fetch --all
+            git reset --hard origin/main
+
+            # Optional: recreate .env from GitHub Secret
+            # echo "${{ secrets.ENV_FILE }}" > .env
+
+            # Stop old container
+            docker stop fastapi_app || true
+            docker rm fastapi_app || true
+
+            # Build fresh image
+            docker build -t fastapi_app:latest .
+
+            # Run container again
+            docker run -d --name fastapi_app \
+              --env-file .env \
+              -p 8000:8000 \
+              fastapi_app:latest
+
+            # clean up old images
+            docker image prune -f
